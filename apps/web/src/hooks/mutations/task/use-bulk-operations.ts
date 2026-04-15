@@ -8,6 +8,7 @@ export function useBulkOperations() {
   const invalidateCommon = () => {
     queryClientRef.invalidateQueries({ queryKey: ["tasks"] });
     queryClientRef.invalidateQueries({ queryKey: ["projects"] });
+    queryClientRef.invalidateQueries({ queryKey: ["workspace-tasks"] });
   };
 
   const bulkDelete = useMutation({

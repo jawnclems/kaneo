@@ -24,6 +24,7 @@ type GanttTaskBarProps = {
   pixelsPerDay: number;
   isMobile?: boolean;
   onOpenTask: () => void;
+  barHeight?: number;
 };
 
 function getBarGridColumns(
@@ -56,6 +57,7 @@ export function GanttTaskBar({
   pixelsPerDay,
   isMobile = false,
   onOpenTask,
+  barHeight,
 }: GanttTaskBarProps) {
   const { t } = useTranslation();
   const { mutateAsync: updateTask } = useUpdateTask();
@@ -288,7 +290,10 @@ export function GanttTaskBar({
       }}
     >
       <div
-        style={{ gridColumn: `${lineStart} / ${lineEnd}` }}
+        style={{
+          gridColumn: `${lineStart} / ${lineEnd}`,
+          ...(barHeight !== undefined ? { height: `${barHeight}px` } : {}),
+        }}
         className="group pointer-events-auto relative mx-1 flex min-h-[44px] min-w-0 items-stretch overflow-hidden rounded-md border border-primary/25 bg-background text-left text-sm font-medium leading-none text-foreground shadow-sm transition-colors hover:border-primary/40 sm:h-11 sm:min-h-0"
       >
         <button

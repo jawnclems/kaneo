@@ -1030,7 +1030,8 @@
 			"projects": "Projects",
 			"members": "Members",
 			"invitations": "Invitations",
-			"more": "More"
+			"more": "More",
+			"timeline": "Timeline"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1707,6 +1708,21 @@
 			"submit": "Create workspace",
 			"success": "Workspace created successfully",
 			"error": "Failed to create workspace"
+		},
+		"gantt": {
+			"pageTitle": "Workspace Timeline",
+			"title": "Workspace Timeline",
+			"searchPlaceholder": "Search scheduled tickets...",
+			"hideTasks": "Hide tasks",
+			"showTasks": "Show tasks",
+			"noTasks": "No scheduled tasks",
+			"noTasksSubtitle": "Add a start date or due date to any task to see it here.",
+			"noTasksFound": "No tasks found",
+			"noTasksMatch": "No scheduled tasks match \"{{query}}\"",
+			"taskHeader": "Task",
+			"today": "Today",
+			"zoomIn": "Zoom in",
+			"zoomOut": "Zoom out"
 		}
 	},
 	"team": {

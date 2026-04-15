@@ -31,6 +31,9 @@ function useCreateTask() {
       void queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId],
       });
+      void queryClient.invalidateQueries({
+        queryKey: ["workspace-tasks"],
+      });
     },
   });
 }

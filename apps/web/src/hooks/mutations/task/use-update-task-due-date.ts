@@ -15,6 +15,9 @@ export function useUpdateTaskDueDate() {
         queryKey: ["tasks", variables.projectId],
       });
       queryClient.invalidateQueries({
+        queryKey: ["workspace-tasks"],
+      });
+      queryClient.invalidateQueries({
         queryKey: ["notifications"],
       });
       queryClient.invalidateQueries({

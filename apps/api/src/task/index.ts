@@ -26,6 +26,7 @@ import deleteTask from "./controllers/delete-task";
 import exportTasks from "./controllers/export-tasks";
 import getTask from "./controllers/get-task";
 import getTasks from "./controllers/get-tasks";
+import getWorkspaceTasks from "./controllers/get-workspace-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
 import updateTask from "./controllers/update-task";
@@ -90,6 +91,29 @@ const task = new Hono<{
 
       const tasks = await getTasks(projectId, filters);
 
+      return c.json(tasks);
+    },
+  )
+  .get(
+    "/workspace/:workspaceId",
+    describeRoute({
+      operationId: "listWorkspaceTasks",
+      tags: ["Tasks"],
+      description: "Get all scheduled tasks across all projects in a workspace",
+      responses: {
+        200: {
+          description: "Flat list of tasks with project metadata",
+          content: {
+            "application/json": { schema: resolver(v.any()) },
+          },
+        },
+      },
+    }),
+    validator("param", v.object({ workspaceId: v.string() })),
+    workspaceAccess.fromParam("workspaceId"),
+    async (c) => {
+      const { workspaceId } = c.req.valid("param");
+      const tasks = await getWorkspaceTasks(workspaceId);
       return c.json(tasks);
     },
   )
