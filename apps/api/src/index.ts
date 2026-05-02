@@ -118,9 +118,14 @@ function buildContentDisposition(filename: string) {
 
 export function createApp() {
   const app = new Hono<AppVariables>();
-  const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(",").map((origin) => origin.trim())
-    : undefined;
+  const corsOriginSource = [
+    process.env.CORS_ORIGINS,
+    process.env.KANEO_CLIENT_URL,
+  ].find((value) => value?.trim());
+  const corsOrigins = corsOriginSource
+    ?.split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 
   app.use(
     "*",
@@ -525,13 +530,16 @@ export async function runStartupTasks() {
 
   await migrateWorkspaceUserEmail();
   await migrateSessionColumn();
-  await migrateApiKeyReferenceId();
 
   console.log("🔄 Migrating database...");
   await migrate(db, {
     migrationsFolder: `${currentDir}/../drizzle`,
   });
   console.log("✅ Database migrated successfully!");
+
+  // After Drizzle migrations: apikey table must exist so we can align columns
+  // with Better Auth (reference_id + nullable user_id).
+  await migrateApiKeyReferenceId();
 
   await migrateNotificationPreferencesSchema();
   await migrateGitHubIntegration();
