@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import PageTitle from "@/components/page-title";
+import { CompleteProjectModal } from "@/components/shared/modals/complete-project-modal";
 import {
   AlertDialog,
   AlertDialogClose,
@@ -19,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,8 +39,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import icons from "@/constants/project-icons";
 import useDeleteProject from "@/hooks/mutations/project/use-delete-project";
+import useDeleteProjectValueEntry from "@/hooks/mutations/project/use-delete-project-value-entry";
+import useReopenProject from "@/hooks/mutations/project/use-reopen-project";
 import useUpdateProject from "@/hooks/mutations/project/use-update-project";
 import useGetProject from "@/hooks/queries/project/use-get-project";
+import useGetProjectValueEntries from "@/hooks/queries/project/use-get-project-value-entries";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { cn } from "@/lib/cn";
 import { toast } from "@/lib/toast";
@@ -103,6 +108,7 @@ function RouteComponent() {
   const queuedSaveRef = useRef<ProjectFormValues | null>(null);
   const lastSavedRef = useRef<NormalizedProjectValues | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [iconPopoverOpen, setIconPopoverOpen] = useState(false);
   const [iconSearch, setIconSearch] = useState("");
 
@@ -117,6 +123,12 @@ function RouteComponent() {
   const { mutateAsync: updateProject } = useUpdateProject();
   const { mutateAsync: deleteProject, isPending: isDeleting } =
     useDeleteProject();
+  const { mutateAsync: reopenProject, isPending: isReopening } =
+    useReopenProject({ workspaceId: workspace?.id || "" });
+  const { mutateAsync: deleteValueEntry } = useDeleteProjectValueEntry({
+    projectId,
+  });
+  const { data: valueEntries = [] } = useGetProjectValueEntries({ projectId });
 
   const projectForm = useForm<ProjectFormValues>({
     resolver: standardSchemaResolver(projectSchema),
@@ -286,6 +298,37 @@ function RouteComponent() {
       })();
     };
   }, []);
+
+  const handleReopenProject = useCallback(async () => {
+    if (!project?.id) return;
+    try {
+      await reopenProject({ id: project.id });
+      toast.success(t("settings:projectCompletion.reopenedToast"));
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : t("settings:projectCompletion.reopenErrorToast"),
+      );
+    }
+  }, [project?.id, reopenProject, queryClient, t]);
+
+  const handleDeleteValueEntry = useCallback(
+    async (entryId: string) => {
+      try {
+        await deleteValueEntry({ projectId, entryId });
+        toast.success(t("settings:projectCompletion.entryDeletedToast"));
+      } catch (error) {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : t("settings:projectCompletion.entryDeleteErrorToast"),
+        );
+      }
+    },
+    [projectId, deleteValueEntry, t],
+  );
 
   const handleDeleteProject = useCallback(async () => {
     if (!project?.id) return;
@@ -529,6 +572,129 @@ function RouteComponent() {
         <div className="space-y-6">
           <div className="space-y-1">
             <h2 className="text-md font-medium">
+              {t("settings:projectCompletion.title")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {t("settings:projectCompletion.subtitle")}
+            </p>
+          </div>
+
+          <div className="space-y-4 border border-border rounded-md p-4 bg-sidebar">
+            {project?.completedAt ? (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">
+                        {t("settings:projectCompletion.completedLabel")}
+                      </p>
+                      <Badge variant="success">
+                        {t("settings:projectCompletion.completedBadge")}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(project.completedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
+                    onClick={handleReopenProject}
+                    disabled={isReopening || !project}
+                  >
+                    {isReopening
+                      ? t("settings:projectCompletion.reopening")
+                      : t("settings:projectCompletion.reopenButton")}
+                  </Button>
+                </div>
+
+                {valueEntries.length > 0 && (
+                  <>
+                    <Separator />
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {t("settings:projectCompletion.valueEntriesLabel")}
+                      </p>
+                      {valueEntries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="flex items-start justify-between gap-2 rounded-md border border-border p-2.5 bg-background"
+                        >
+                          <div className="space-y-0.5 flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-medium truncate">
+                                {entry.title}
+                              </span>
+                              <Badge variant="outline" size="sm">
+                                {entry.category.replace("_", " ")}
+                              </Badge>
+                              {entry.metric && (
+                                <Badge variant="info" size="sm">
+                                  {entry.metric}
+                                </Badge>
+                              )}
+                            </div>
+                            {entry.description && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {entry.description}
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            type="button"
+                            className="h-7 w-7 p-0 shrink-0 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteValueEntry(entry.id)}
+                          >
+                            <span className="sr-only">Delete</span>×
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <Separator />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  type="button"
+                  className="text-muted-foreground w-full justify-start"
+                  onClick={() => setIsCompleteModalOpen(true)}
+                  disabled={!project}
+                >
+                  {t("settings:projectCompletion.addValueEntry")}
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">
+                    {t("settings:projectCompletion.markCompleteLabel")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("settings:projectCompletion.markCompleteHint")}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  onClick={() => setIsCompleteModalOpen(true)}
+                  disabled={!project}
+                >
+                  {t("settings:projectCompletion.markCompleteButton")}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-md font-medium">
               {t("settings:projectGeneral.dangerZone")}
             </h2>
             <p className="text-xs text-muted-foreground">
@@ -559,6 +725,16 @@ function RouteComponent() {
             </div>
           </div>
         </div>
+
+        {project && (
+          <CompleteProjectModal
+            open={isCompleteModalOpen}
+            onClose={() => setIsCompleteModalOpen(false)}
+            projectId={project.id}
+            projectName={project.name}
+            workspaceId={workspace?.id || ""}
+          />
+        )}
 
         <AlertDialog
           open={isDeleteModalOpen}

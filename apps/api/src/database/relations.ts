@@ -13,6 +13,7 @@ import {
   labelTable,
   notificationTable,
   projectTable,
+  projectValueEntryTable,
   sessionTable,
   taskRelationTable,
   taskReminderSentTable,
@@ -107,6 +108,21 @@ export const projectTableRelations = relations(
     githubIntegration: many(githubIntegrationTable),
     integrations: many(integrationTable),
     notificationWorkspaceProjects: many(userNotificationWorkspaceProjectTable),
+    valueEntries: many(projectValueEntryTable),
+  }),
+);
+
+export const projectValueEntryTableRelations = relations(
+  projectValueEntryTable,
+  ({ one }) => ({
+    project: one(projectTable, {
+      fields: [projectValueEntryTable.projectId],
+      references: [projectTable.id],
+    }),
+    workspace: one(workspaceTable, {
+      fields: [projectValueEntryTable.workspaceId],
+      references: [workspaceTable.id],
+    }),
   }),
 );
 

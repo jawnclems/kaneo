@@ -9,6 +9,7 @@ async function getProjects(workspaceId: string, includeArchived = false) {
       : and(
           eq(projectTable.workspaceId, workspaceId),
           isNull(projectTable.archivedAt),
+          isNull(projectTable.completedAt),
         ),
     with: {
       tasks: true,

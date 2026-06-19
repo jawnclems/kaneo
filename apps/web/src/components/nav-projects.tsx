@@ -1,6 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import {
+  CheckCircle2,
   ChevronRight,
   Folder,
   Forward,
@@ -36,6 +37,7 @@ import useGetProjects from "@/hooks/queries/project/use-get-projects";
 import useActiveWorkspace from "@/hooks/queries/workspace/use-active-workspace";
 import { toast } from "@/lib/toast";
 import type { ProjectWithTasks } from "@/types/project";
+import { CompleteProjectModal } from "./shared/modals/complete-project-modal";
 import CreateProjectModal from "./shared/modals/create-project-modal";
 import {
   AlertDialog,
@@ -70,6 +72,10 @@ export function NavProjects() {
   const [projectToDeleteId, setProjectToDeleteID] = useState<string | null>(
     null,
   );
+  const [isCompleteProjectModalOpen, setIsCompleteProjectModalOpen] =
+    useState(false);
+  const [projectToComplete, setProjectToComplete] =
+    useState<ProjectWithTasks | null>(null);
 
   const isCurrentProject = (projectId: string) => {
     return (
@@ -175,6 +181,18 @@ export function NavProjects() {
                               {t("navigation:projectList.projectSettings")}
                             </span>
                           </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="h-7 items-start cursor-pointer text-sm"
+                            onClick={() => {
+                              setProjectToComplete(project);
+                              setIsCompleteProjectModalOpen(true);
+                            }}
+                          >
+                            <CheckCircle2 className="text-muted-foreground" />
+                            <span>
+                              {t("navigation:projectList.markComplete")}
+                            </span>
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="h-7 items-start text-destructive cursor-pointer text-sm"
@@ -213,6 +231,19 @@ export function NavProjects() {
         open={isCreateProjectModalOpen}
         onClose={() => setIsCreateProjectModalOpen(false)}
       />
+
+      {projectToComplete && (
+        <CompleteProjectModal
+          open={isCompleteProjectModalOpen}
+          onClose={() => {
+            setIsCompleteProjectModalOpen(false);
+            setProjectToComplete(null);
+          }}
+          projectId={projectToComplete.id}
+          projectName={projectToComplete.name}
+          workspaceId={workspace.id}
+        />
+      )}
 
       <AlertDialog
         open={isDeleteProjectModalOpen}

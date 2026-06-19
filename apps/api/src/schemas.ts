@@ -19,6 +19,25 @@ export const projectSchema = v.object({
   createdAt: v.date(),
   isPublic: v.nullable(v.boolean()),
   archivedAt: v.nullable(v.date()),
+  completedAt: v.nullable(v.date()),
+});
+
+export const projectValueEntrySchema = v.object({
+  id: v.string(),
+  projectId: v.string(),
+  workspaceId: v.string(),
+  title: v.string(),
+  metric: v.nullable(v.string()),
+  category: v.picklist([
+    "cost_savings",
+    "revenue",
+    "efficiency",
+    "quality",
+    "other",
+  ] as const),
+  description: v.nullable(v.string()),
+  createdAt: v.date(),
+  updatedAt: v.date(),
 });
 
 export const taskSchema = v.object({

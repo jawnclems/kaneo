@@ -1005,6 +1005,23 @@
 			"merged": "Merged",
 			"draft": "Draft",
 			"open": "Open"
+		},
+		"projectCompletion": {
+			"title": "Project Completion",
+			"subtitle": "Track whether this project is done and the value it has delivered.",
+			"markCompleteLabel": "Mark as Complete",
+			"markCompleteHint": "Mark this project as finished and optionally record the value it delivered.",
+			"markCompleteButton": "Mark Complete",
+			"completedLabel": "Status",
+			"completedBadge": "Completed",
+			"reopenButton": "Reopen Project",
+			"reopening": "Reopening...",
+			"reopenedToast": "Project reopened",
+			"reopenErrorToast": "Failed to reopen project",
+			"valueEntriesLabel": "Value Delivered",
+			"addValueEntry": "Add value entry",
+			"entryDeletedToast": "Value entry removed",
+			"entryDeleteErrorToast": "Failed to remove value entry"
 		}
 	},
 	"navigation": {
@@ -1036,7 +1053,8 @@
 			"members": "Members",
 			"invitations": "Invitations",
 			"more": "More",
-			"timeline": "Timeline"
+			"timeline": "Timeline",
+			"completed": "Completed"
 		},
 		"projectList": {
 			"viewProject": "View Project",
@@ -1047,7 +1065,19 @@
 			"deleteConfirmTitle": "Delete Project?",
 			"deleteConfirmDescription": "This will permanently remove the project and all its data. You can't undo this action.",
 			"deletedToast": "Project deleted",
-			"deleteProject": "Delete Project"
+			"deleteProject": "Delete Project",
+			"markComplete": "Mark as Complete",
+			"completing": "Completing...",
+			"completedToast": "{{name}} marked as complete",
+			"completeErrorToast": "Failed to complete project",
+			"valueEntriesLabel": "Value entries (optional)",
+			"valueEntriesHint": "Record what value this project brought. You can add more entries later from project settings.",
+			"addValueEntry": "Add entry",
+			"valueEntryNumber": "Entry {{number}}",
+			"valueEntryTitlePlaceholder": "e.g. Reduced support tickets",
+			"valueEntryMetricPlaceholder": "e.g. 40 hrs/week",
+			"valueEntryDescPlaceholder": "Optional description",
+			"valueEntryTitleRequired": "At least one entry is missing a title"
 		},
 		"search": {
 			"inputPlaceholder": "Search tasks, projects, comments...",
@@ -1545,6 +1575,8 @@
 			"searchPlaceholder": "Search scheduled tickets...",
 			"hideTasks": "Hide tasks",
 			"showTasks": "Show tasks",
+			"hideDone": "Hide done",
+			"showDone": "Show done",
 			"noTasks": "No scheduled tasks",
 			"noTasksSubtitle": "Add a start date, due date, or both to tasks to place them on the project timeline.",
 			"noTasksFound": "No tasks found",
@@ -1720,6 +1752,8 @@
 			"searchPlaceholder": "Search scheduled tickets...",
 			"hideTasks": "Hide tasks",
 			"showTasks": "Show tasks",
+			"hideDone": "Hide done",
+			"showDone": "Show done",
 			"noTasks": "No scheduled tasks",
 			"noTasksSubtitle": "Add a start date or due date to any task to see it here.",
 			"noTasksFound": "No tasks found",
@@ -1728,6 +1762,17 @@
 			"today": "Today",
 			"zoomIn": "Zoom in",
 			"zoomOut": "Zoom out"
+		},
+		"completed": {
+			"pageTitle": "Completed Projects",
+			"projectColumn": "Project",
+			"completedOnColumn": "Completed On",
+			"valueEntriesColumn": "Value Entries",
+			"emptyTitle": "No completed projects",
+			"emptyDescription": "Mark a project as complete to see it here.",
+			"reopenButton": "Reopen",
+			"reopenedToast": "Project reopened",
+			"reopenErrorToast": "Failed to reopen project"
 		}
 	},
 	"team": {
