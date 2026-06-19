@@ -11,7 +11,7 @@ import {
   startOfWeek,
   subDays,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, Search } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ProjectLayout from "@/components/common/project-layout";
@@ -53,6 +53,7 @@ function RouteComponent() {
   const { data: project } = useGetTasks(projectId);
   const weekStartsOn = useUserPreferencesStore((state) => state.weekStartsOn);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hideDone, setHideDone] = useState(false);
   const isMobile = useIsMobile();
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
 
@@ -108,9 +109,11 @@ function RouteComponent() {
 
   const scheduledTasks = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) return parsedTasks;
 
     return parsedTasks.filter((task) => {
+      if (hideDone && task.status.toLowerCase() === "done") return false;
+      if (!normalizedQuery) return true;
+
       return (
         task.title.toLowerCase().includes(normalizedQuery) ||
         `${project?.slug ?? ""}-${task.number ?? ""}`
@@ -119,7 +122,7 @@ function RouteComponent() {
         task.status.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [parsedTasks, project?.slug, searchQuery]);
+  }, [parsedTasks, project?.slug, searchQuery, hideDone]);
 
   const timeline = useMemo(() => {
     if (parsedTasks.length === 0) return null;
@@ -197,21 +200,43 @@ function RouteComponent() {
               />
             </div>
 
-            <Button
-              variant="outline"
-              size="xs"
-              className="min-h-11 touch-manipulation sm:hidden"
-              onClick={() => setIsTaskRailOpen((current) => !current)}
-            >
-              {showTaskRail ? (
-                <ChevronLeft className="size-3.5" />
-              ) : (
-                <ChevronRight className="size-3.5" />
-              )}
-              {showTaskRail
-                ? t("tasks:gantt.hideTasks")
-                : t("tasks:gantt.showTasks")}
-            </Button>
+            <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="xs"
+                className={cn(
+                  "h-9 min-h-11 gap-1.5 px-2.5 text-xs touch-manipulation sm:h-8 sm:min-h-0",
+                  hideDone && "border-primary/60 text-primary",
+                )}
+                onClick={() => setHideDone((current) => !current)}
+                aria-pressed={hideDone}
+              >
+                {hideDone ? (
+                  <Eye className="size-3.5" />
+                ) : (
+                  <EyeOff className="size-3.5" />
+                )}
+                {hideDone
+                  ? t("tasks:gantt.showDone")
+                  : t("tasks:gantt.hideDone")}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="xs"
+                className="min-h-11 touch-manipulation sm:hidden"
+                onClick={() => setIsTaskRailOpen((current) => !current)}
+              >
+                {showTaskRail ? (
+                  <ChevronLeft className="size-3.5" />
+                ) : (
+                  <ChevronRight className="size-3.5" />
+                )}
+                {showTaskRail
+                  ? t("tasks:gantt.hideTasks")
+                  : t("tasks:gantt.showTasks")}
+              </Button>
+            </div>
           </div>
         </div>
 

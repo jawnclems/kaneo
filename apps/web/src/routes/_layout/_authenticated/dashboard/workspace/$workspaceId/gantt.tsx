@@ -12,7 +12,7 @@ import {
   startOfWeek,
   subDays,
 } from "date-fns";
-import { CalendarDays, Minus, Plus, Search } from "lucide-react";
+import { CalendarDays, Eye, EyeOff, Minus, Plus, Search } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -70,6 +70,7 @@ function RouteComponent() {
   const navigate = useNavigate();
   const { data: rawTasks = [] } = useGetWorkspaceTasks(workspaceId);
   const [searchQuery, setSearchQuery] = useState("");
+  const [hideDone, setHideDone] = useState(false);
   const isMobile = useIsMobile();
   const [isTaskRailOpen, setIsTaskRailOpen] = useState(false);
   const [dayColumnWidthRem, setDayColumnWidthRem] = useState(
@@ -201,9 +202,11 @@ function RouteComponent() {
 
   const scheduledTasks = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) return parsedTasks;
 
     return parsedTasks.filter((task) => {
+      if (hideDone && task.status.toLowerCase() === "done") return false;
+      if (!normalizedQuery) return true;
+
       return (
         task.title.toLowerCase().includes(normalizedQuery) ||
         `${task.projectSlug ?? ""}-${task.number ?? ""}`
@@ -213,7 +216,7 @@ function RouteComponent() {
         (task.projectName ?? "").toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [parsedTasks, searchQuery]);
+  }, [parsedTasks, searchQuery, hideDone]);
 
   const timeline = useMemo(() => {
     if (parsedTasks.length === 0) return null;
@@ -311,6 +314,26 @@ function RouteComponent() {
             </div>
 
             <div className="flex items-center gap-1.5">
+              <Button
+                variant="outline"
+                size="xs"
+                className={cn(
+                  "h-8 gap-1.5 px-2.5 text-xs",
+                  hideDone && "border-primary/60 text-primary",
+                )}
+                onClick={() => setHideDone((current) => !current)}
+                aria-pressed={hideDone}
+              >
+                {hideDone ? (
+                  <Eye className="h-3.5 w-3.5" />
+                ) : (
+                  <EyeOff className="h-3.5 w-3.5" />
+                )}
+                {hideDone
+                  ? t("workspace:gantt.showDone")
+                  : t("workspace:gantt.hideDone")}
+              </Button>
+
               <Button
                 variant="outline"
                 size="xs"
