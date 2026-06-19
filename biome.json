@@ -23,6 +23,7 @@
 			"!**/.cache",
 			"!**/coverage",
 			"!**/.claude",
+			"!**/.local",
 			"!**/openapi.json"
 		]
 	},
